@@ -1,0 +1,356 @@
+#include "face_recognition.h"
+#include "ui_face_recognition.h"
+
+#include <QDebug>
+#include <QTextCodec>
+
+#include "arcsoft_face_sdk.h"
+#include "amcomdef.h"
+#include "asvloffscreen.h"
+#include "merror.h"
+
+#include "core.hpp"
+#include "opencv.hpp"
+
+#define APPID   ""  //此处填入虹软人脸SDK的APPID
+#define SDKKey  ""  //此处填入虹软人脸SDK的SDKKey
+#define MERR_ASF_BASE_ALREADY_ACTIVATED (0x16002)
+
+FaceRecognition::FaceRecognition(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::FaceRecognition)
+{
+    ui->setupUi(this);
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("GB2312"));
+    faceRecognitionConfig = new QSettings("id.ini", QSettings::IniFormat);
+
+    //取消标题栏
+    this->setWindowFlags(Qt::FramelessWindowHint);
+    ui->close->setAttribute(Qt::WA_Hover,true);//开启悬停事件
+    ui->close->installEventFilter(this);       //安装事件过滤器
+
+    /** 激活SDK */
+    MRESULT res = ASFActivation(const_cast<char*>(APPID), const_cast<char*>(SDKKey));
+    if (MOK == res || MERR_ASF_BASE_ALREADY_ACTIVATED == res)
+    {
+        qDebug() << "ALActivation sucess: " << res;
+    }
+    else
+    {
+        qDebug() << "ALActivation fail: " << res;
+    }
+
+    QImage img("D:/MusicPlayer/FaceId/" + faceRecognitionConfig->value("id").toString() + ".jpg");
+    faceBase.img = img;
+    update();
+    initSLot();
+
+    faceRecognitionLogin();
+}
+
+FaceRecognition::~FaceRecognition()
+{
+    delete ui;
+}
+void FaceRecognition::initSLot()
+{
+    faceRecognitionTimer = new QTimer(this);
+
+    connect(ui->close, &QPushButton::clicked, this, [=]{
+        this->close();
+        faceRecognitionTimer->stop();
+        camera->stop();
+    });
+}
+void FaceRecognition::faceRecognitionLogin()
+{
+    camera = new QCamera(); // 摄像头对象
+    viewfinder = new QCameraViewfinder(this); // 用于实时显示摄像头图像
+    imageCapture = new QCameraImageCapture(camera); // 用于截取摄像头图像
+    camera->setViewfinder(viewfinder); // camera 使用 viewfinder 实时显示图像
+
+    viewfinder->move(10,55);
+    viewfinder->setFixedSize(900,500);
+
+    camera->start();
+    imageCapture->capture("capture.jpg"); // 初始化截一张图
+
+
+    // 拍照完成后的槽函数，可以把 image 保存到自己想要的位置
+    QObject::connect(imageCapture, &QCameraImageCapture::imageCaptured, [=](int id, const QImage &image) {
+        Q_UNUSED(id)
+        currentFace.img = image;
+
+    });
+
+    connect(faceRecognitionTimer,&QTimer::timeout,this,[=]{
+        imageCapture->capture("capture.jpg"); // 每次截图生成一个图片
+        QTimer::singleShot(200, this,[=](){//等待截图完再识别
+            onCompare();
+        });
+    });
+    faceRecognitionTimer->start(1500);
+}
+
+
+
+void FaceRecognition::onCompare()
+{
+    if( faceBase.img.isNull() )
+    {
+        QMessageBox::critical(this, "警告", "人脸未注册，请注册");
+
+        this->close();
+        faceRecognitionTimer->stop();
+        camera->stop();
+
+        return;
+    }
+
+    if( currentFace.img.isNull() )
+    {
+        QMessageBox::critical(this, "错误", "无摄像头的画面截图");
+
+        this->close();
+        faceRecognitionTimer->stop();
+        camera->stop();
+        return;
+    }
+
+    QTime time;
+    time.start();
+
+    if( doCompare(faceBase, currentFace, static_cast<float>(0.63)) )
+    {
+
+        //QMessageBox::information(this, title_text, text);
+        qDebug()<<"人脸匹配，登录成功";
+        faceRecognitionConfig->clear();
+        this->mainPage = new MainPage();
+        mainPage->show();
+        this->close();
+        faceRecognitionTimer->stop();
+        camera->stop();
+    }
+    else
+    {
+        qDebug()<<"人脸不匹配，登录失败";
+    }
+}
+
+bool FaceRecognition::doCompare(Imag& img_photo, Imag& img_idcard, float val)
+{
+    bool pResult = false;
+    MRESULT res;
+
+    /** 2. 初始化引擎 */
+    MHandle handle = NULL;
+    MInt32 mask = ASF_FACE_DETECT | ASF_FACERECOGNITION | ASF_AGE | ASF_GENDER | ASF_FACE3DANGLE;
+    res = ASFInitEngine(static_cast<MInt32>(ASF_DETECT_MODE_IMAGE), ASF_OP_0_ONLY, 16, 5, mask, &handle);
+    if (res == MOK)
+    {
+        qDebug() << "ALInitEngine sucess: " << res;
+    }
+    else
+    {
+        qDebug() << "ALInitEngine fail: " << res;
+    }
+
+    /** 3. 人脸检测 */
+    img_photo.img.scaled(img_photo.img.width()/4*4, img_photo.img.height()/4*4).save("img1.png");
+    img_idcard.img.scaled(img_idcard.img.width()/4*4, img_idcard.img.height()/4*4).save("img2.png");
+
+    IplImage* img1  = cvLoadImage("img1.png");
+    IplImage* img2  = cvLoadImage("img2.png");
+
+    if (img1 && img2)
+    {
+        /** 3.1 第一张人脸特征提取 */
+        ASF_MultiFaceInfo  detectedFaces1       = { 0 };
+        ASF_SingleFaceInfo SingleDetectedFaces1 = { 0 };
+        ASF_FaceFeature    feature1             = { 0 };
+        ASF_FaceFeature    copyfeature1         = { 0 };
+        res = ASFDetectFaces(handle, img1->width, img1->height, ASVL_PAF_RGB24_B8G8R8, (MUInt8*)img1->imageData, &detectedFaces1);
+        if (MOK == res)
+        {
+            SingleDetectedFaces1.faceRect.left   = detectedFaces1.faceRect[0].left;
+            SingleDetectedFaces1.faceRect.top    = detectedFaces1.faceRect[0].top;
+            SingleDetectedFaces1.faceRect.right  = detectedFaces1.faceRect[0].right;
+            SingleDetectedFaces1.faceRect.bottom = detectedFaces1.faceRect[0].bottom;
+            SingleDetectedFaces1.faceOrient      = 0x05;
+
+            qDebug() << detectedFaces1.faceNum;
+
+            res = ASFFaceFeatureExtract(handle, img1->width, img1->height, ASVL_PAF_RGB24_B8G8R8, reinterpret_cast<MUInt8*>(img1->imageData), &SingleDetectedFaces1, &feature1);
+            if (res == MOK)
+            {
+                /** 3.1.1 拷贝feature */
+                copyfeature1.featureSize = feature1.featureSize;
+                copyfeature1.feature = reinterpret_cast<MByte*>(malloc(static_cast<size_t>(feature1.featureSize)));
+                memset(copyfeature1.feature, 0, static_cast<size_t>(feature1.featureSize));
+                memcpy(copyfeature1.feature, feature1.feature, static_cast<size_t>(feature1.featureSize));
+
+                int x = SingleDetectedFaces1.faceRect.left;
+                int y = SingleDetectedFaces1.faceRect.top;
+                int w = SingleDetectedFaces1.faceRect.right - SingleDetectedFaces1.faceRect.left;
+                int h = SingleDetectedFaces1.faceRect.bottom - SingleDetectedFaces1.faceRect.top;
+
+                img_photo.rect = QRect(x, y, w, h);
+
+                /** 3.1.2 人脸信息检测 */
+                MInt32 processMask = ASF_AGE | ASF_GENDER;
+                res = ASFProcess(handle, img1->width, img1->height, ASVL_PAF_RGB24_B8G8R8, reinterpret_cast<MUInt8*>(img1->imageData), &detectedFaces1, processMask);
+                if (res == MOK)
+                {
+                    qDebug() << "ASFProcess sucess: " << res;
+                }
+                else
+                {
+                    qDebug() << "ASFProcess fail: " << res;
+                }
+
+                /** 3.1.3 获取年龄 */
+                ASF_AgeInfo ageInfo = { 0 };
+                res = ASFGetAge(handle, &ageInfo);
+                if (res == MOK)
+                {
+                    img_photo.age = ageInfo.ageArray[0];
+
+                    qDebug() << ageInfo.ageArray[0];
+                    qDebug() << "ASFGetAge sucess: " << res;
+                }
+                else
+                {
+                    qDebug() << "ASFGetAge fail: " << res;
+                }
+
+                /** 3.1.4 获取性别 */
+                ASF_GenderInfo genderInfo = { 0 };
+                res = ASFGetGender(handle, &genderInfo);
+                if (res == MOK)
+                {
+                    img_photo.gender = genderInfo.genderArray[0];
+
+                    qDebug() << genderInfo.genderArray[0];
+                    qDebug() << "ASFGetGender sucess: " << res;
+                }
+                else
+                {
+                    qDebug() << "ASFGetGender fail: " << res;
+                }
+
+                qDebug() << "ASFFaceFeatureExtract 1 Success";
+            }
+            else
+            {
+                qDebug() << "ASFFaceFeatureExtract 1 fail: " << res;
+            }
+        }
+        else
+        {
+            qDebug() << "ASFDetectFaces 1 fail: " << res;
+        }
+
+        /** 3.2 第二张人脸特征提取 */
+        ASF_MultiFaceInfo	detectedFaces2       = { 0 };
+        ASF_SingleFaceInfo  SingleDetectedFaces2 = { 0 };
+        ASF_FaceFeature     feature2             = { 0 };
+        res = ASFDetectFaces(handle, img2->width, img2->height, ASVL_PAF_RGB24_B8G8R8, reinterpret_cast<MUInt8*>(img2->imageData), &detectedFaces2);
+        if (MOK == res)
+        {
+            SingleDetectedFaces2.faceRect.left   = detectedFaces2.faceRect[0].left;
+            SingleDetectedFaces2.faceRect.top    = detectedFaces2.faceRect[0].top;
+            SingleDetectedFaces2.faceRect.right  = detectedFaces2.faceRect[0].right;
+            SingleDetectedFaces2.faceRect.bottom = detectedFaces2.faceRect[0].bottom;
+            SingleDetectedFaces2.faceOrient      = detectedFaces2.faceOrient[0];
+
+            res = ASFFaceFeatureExtract(handle, img2->width, img2->height, ASVL_PAF_RGB24_B8G8R8, reinterpret_cast<MUInt8*>(img2->imageData), &SingleDetectedFaces2, &feature2);
+            if (res == MOK)
+            {
+                int x = SingleDetectedFaces2.faceRect.left;
+                int y = SingleDetectedFaces2.faceRect.top;
+                int w = SingleDetectedFaces2.faceRect.right - SingleDetectedFaces2.faceRect.left;
+                int h = SingleDetectedFaces2.faceRect.bottom - SingleDetectedFaces2.faceRect.top;
+
+                img_idcard.rect = QRect(x, y, w, h);
+
+                qDebug() << "ASFFaceFeatureExtract 2 Success";
+            }
+            else
+            {
+                qDebug() << "ASFFaceFeatureExtract 2 fail: " << res;
+            }
+        }
+        else
+        {
+            qDebug() << "ASFDetectFaces 2 fail: " << res;
+        }
+
+        /** 3.3 单人脸特征比对 */
+        MFloat confidenceLevel;
+        res = ASFFaceFeatureCompare(handle, &copyfeature1, &feature2, &confidenceLevel);
+        if (res == MOK)
+        {
+            qDebug() << "ASFFaceFeatureCompare sucess: " << confidenceLevel;
+
+            if( confidenceLevel >= val ) pResult = true;
+        }
+        else
+        {
+            qDebug() << "ASFFaceFeatureCompare fail: " << res;
+        }
+    }
+
+    /** 4. 反初始化 */
+    res = ASFUninitEngine(handle);
+    if (res != MOK)
+    {
+        qDebug() << "ALUninitEngine fail: " << res;
+    }
+    else
+    {
+        qDebug() << "ALUninitEngine sucess: " << res;
+    }
+
+    return pResult;
+}
+//鼠标移动事件
+void FaceRecognition::mouseMoveEvent(QMouseEvent *event)
+{
+    QPoint y = event->globalPos();
+    QPoint x = y - z;
+    move(x);
+}
+//鼠标按下事件
+void FaceRecognition::mousePressEvent(QMouseEvent *event)
+{
+    QPoint y = event->globalPos();
+    QPoint x = this->geometry().topLeft();
+    this->z = y - x;
+}
+//绘图事件
+void FaceRecognition::paintEvent(QPaintEvent *)
+{
+    QPainter p1(this);
+    QPixmap pix;
+    pix.load(":/res/blue.jpg");
+    p1.drawPixmap(0,0,this->width(),this->height(),pix);
+}
+//事件过滤器
+bool FaceRecognition::eventFilter(QObject *obj, QEvent *event)
+{
+    if(obj == ui->close) {
+        if(event->type() == QEvent::HoverEnter) {
+            ui->close->setIcon(QIcon(":/res/close_on.png"));//鼠标悬停改变按钮颜色
+            return true;
+        }
+    }
+    if(obj == ui->close) {
+        if(event->type() == QEvent::HoverLeave) {
+            ui->close->setIcon(QIcon(":/res/close.png"));//鼠标离开恢复原始按钮
+            return true;
+        }
+    }
+    return QWidget::eventFilter(obj,event);
+}
+

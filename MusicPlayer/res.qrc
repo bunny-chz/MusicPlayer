@@ -1,0 +1,47 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/icon.png</file>
+        <file>res/pause.png</file>
+        <file>res/play.png</file>
+        <file>res/player_back.png</file>
+        <file>res/player_back_on.png</file>
+        <file>res/player_forward.png</file>
+        <file>res/player_forward_on.png</file>
+        <file>res/add_play_list.png</file>
+        <file>res/add_bg.png</file>
+        <file>res/close.png</file>
+        <file>res/switchOff.png</file>
+        <file>res/switchOn.png</file>
+        <file>res/volumeCross.png</file>
+        <file>res/volumeHigh.png</file>
+        <file>res/volumeLow.png</file>
+        <file>res/volumeMiddle.png</file>
+        <file>res/volumeZero.png</file>
+        <file>res/favoriteOff.png</file>
+        <file>res/favoriteOn.png</file>
+        <file>res/favoriteList.png</file>
+        <file>res/localList.png</file>
+        <file>res/account.png</file>
+        <file>res/logout.png</file>
+        <file>res/minimize.png</file>
+        <file>res/passwd.png</file>
+        <file>res/LoginBG.png</file>
+        <file>res/faceRecognition.png</file>
+        <file>res/back.png</file>
+        <file>res/close_on.png</file>
+        <file>res/faceAdd.png</file>
+        <file>res/registerFaceCapture.png</file>
+        <file>res/addFacePageBtn.png</file>
+        <file>res/minimize_on.png</file>
+        <file>res/bg.jpeg</file>
+        <file>res/bg1.jpeg</file>
+        <file>res/lay1.jpg</file>
+        <file>res/faceAdd_on.png</file>
+        <file>res/faceRecognition_on.png</file>
+        <file>res/blue.jpg</file>
+        <file>res/logout_on.png</file>
+        <file>res/registerFaceCapture_on.png</file>
+        <file>res/addFacePageBtn_on.png</file>
+        <file>res/addLyrics.png</file>
+    </qresource>
+</RCC>
