@@ -2,6 +2,9 @@
 C++ QT版音乐播放器，可以实现基本的音乐播放操作，加入百度手势识别API控制音乐播放，加入虹软的人脸识别用于人脸登录,准备识别前，用OpenCV处理图像
 
 
+
+
+
 **电脑环境**
 
 Windows x64
@@ -19,6 +22,9 @@ QT_5_14_2
 
 **2.百度手势识别API  QT接入**
 
+
+仓库中的API的KEY,SECRET已删除，请自行获取
+
 请查看百度官方文档
 
 https://ai.baidu.com/tech/body/gesture
@@ -35,6 +41,8 @@ https://ai.baidu.com/tech/body/gesture
 
 
 **3.虹软人脸识别QT接入**
+
+仓库中的SDK的激活信息已删除，请自行获取
 
 参考的是这个仓库
 
