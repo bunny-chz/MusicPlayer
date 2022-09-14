@@ -83,6 +83,7 @@ https://github.com/huihut/OpenCV-MinGW-Build/tree/OpenCV-3.3.1
 
 3-2. 在工程设置文件中加入本地安装的OpenCV的include和bin目录，示例如下
 
+"""
 win32 {
 
     INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\
@@ -94,6 +95,8 @@ win32 {
     LIBS += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\bin\libopencv_*.dll
 
 }
+"""
+
 
 3-3. 将 "ArcSoft_ArcFace"（虹软官方给的SDK包含有） 与 "OpenCV"（OpenCV安装后的目录包含有） 相关的 dll 文件复制到工程生成的exe应用程序同文件夹下
   
