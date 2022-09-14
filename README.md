@@ -43,10 +43,15 @@ https://github.com/cocowts/Qt_ArcSoft_ArcFace_Windows_x86_App/tree/master/Face
 2. 在工程设置文件中加入本地安装的OpenCV的include和bin目录，示例如下
 
 win32 {
+
 INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\
+
 INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\opencv
+
 INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\opencv2
+
 LIBS += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\bin\libopencv_*.dll
+
 }
 
 3. 将 "ArcSoft_ArcFace" 与 "OpenCV" 相关的 dll 文件复制到工程生成的exe应用程序同文件夹下（如build-MusicPlayer-Desktop_Qt_5_14_2_MinGW_32_bit-Debug）
