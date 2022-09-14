@@ -100,3 +100,17 @@ win32 {
 （如build-MusicPlayer-Desktop_Qt_5_14_2_MinGW_32_bit-Debug）
 
 其中仓库中相关的 dll 文件已经全部给出，全部复制过去即可（前提是版本对应）
+
+
+
+![image](https://user-images.githubusercontent.com/57706599/190067897-a85b27cd-fc06-4a9b-9437-9cf9536b0f9f.png)
+
+
+----------------------------------------------------------
+
+![image](https://user-images.githubusercontent.com/57706599/190067990-17d8cb95-50f8-49ad-9085-9e323f011644.png)
+
+---------------------------------------------------------
+
+![image](https://user-images.githubusercontent.com/57706599/190068543-6c3b5db9-30c6-4f74-a646-a9ef62515dc1.png)
+
