@@ -71,38 +71,6 @@ MainPage::MainPage(QWidget *parent)
     ui->volStatusBtn->setText(volStr);
 
 
-//    QFile file("E:/music/1.lrc");
-//    if(!file.open(QIODevice::ReadOnly)) {
-//        qDebug()<<"Can't open the file!"<<endl;
-//    }
-
-//    lyricsLine = file.readAll();
-
-//    QString lrcStr(lyricsLine);
-//    qDebug()<< lrcStr;
-
-
-//    //歌词获取
-
-//    QStringList lrclist = lrcStr.split("\r");
-//    for(int i =3;i<lrclist.size()-1;i++)
-//    {
-//        QString ss1 = lrclist.at(i);
-//        QRegExp ipRegExp = QRegExp("\\[\\d\\d\\S\\d\\d\\S\\d\\d\\]");
-//        bool match = ipRegExp.indexIn(lrclist.at(i));
-//        if(match == false)
-//        {
-//            //时间解析格式(分*60+秒)*100+厘秒
-//            int s_1 = ss1.mid(1,2).toInt();      //分
-//            int s_2 = ss1.mid(4,2).toInt();      //秒
-//            int s_3 = ss1.mid(7,2).toInt();      //厘秒
-//            int lrctime = (s_1*60+s_2)*100+s_3;   //规定写法
-//            QString lrcstr = ss1.mid(10);
-//            lrcMap.insert(lrctime,lrcstr);
-//        }
-//    }
-
-
     //=============================信号槽链接================
     connect(ui->openFileBtn,&QToolButton::clicked,this,&MainPage::addFile);//连接打开按钮信号 添加音乐文件槽函数
     connect(ui->closeBtn,&QToolButton::clicked,this,[=]{
