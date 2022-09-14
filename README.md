@@ -46,7 +46,7 @@ https://ai.baidu.com/tech/body/gesture
 
 参考的是这个仓库
 
-https://github.com/cocowts/Qt_ArcSoft_ArcFace_Windows_x86_App/tree/master/Face
+https://github.com/cocowts/Qt_ArcSoft_ArcFace_Windows_x86_App
 
 --------------------------------------------------------------------------------
 
