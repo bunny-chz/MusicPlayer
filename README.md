@@ -34,6 +34,7 @@ https://github.com/cocowts/Qt_ArcSoft_ArcFace_Windows_x86_App/tree/master/Face
 
 ![image](https://user-images.githubusercontent.com/57706599/190042771-6bbf8dba-20e2-467d-9896-9db71b2e35d4.png)
 
+-----------------------------------------------------------------------------------------------------------------
 
 ![image](https://user-images.githubusercontent.com/57706599/190043767-17fe6840-bf55-4bbb-a2a6-21eec546f023.png)
 
