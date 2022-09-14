@@ -116,3 +116,12 @@ win32 {
 
 ![image](https://user-images.githubusercontent.com/57706599/190068543-6c3b5db9-30c6-4f74-a646-a9ef62515dc1.png)
 
+
+工程的 "Face.pro"。
+win32 {
+INCLUDEPATH += D:\OpenCV-MinGW-Build-OpenCV-3.3.1\include\
+INCLUDEPATH += D:\OpenCV-MinGW-Build-OpenCV-3.3.1\include\opencv
+INCLUDEPATH += D:\OpenCV-MinGW-Build-OpenCV-3.3.1\include\opencv2
+LIBS += D:\OpenCV-MinGW-Build-OpenCV-3.3.1\bin\libopencv_*.dll
+}
+将 "ArcSoft_ArcFace" 与 "OpenCV" 相关的 dll 文件复制到
