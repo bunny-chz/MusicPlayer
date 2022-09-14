@@ -44,13 +44,13 @@ https://github.com/cocowts/Qt_ArcSoft_ArcFace_Windows_x86_App/tree/master/Face
 
 win32 {
 
-INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\
+  INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\
 
-INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\opencv
+  INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\opencv
 
-INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\opencv2
+  INCLUDEPATH += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\include\opencv2
 
-LIBS += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\bin\libopencv_*.dll
+  LIBS += C:\Users\Bunny\Downloads\OpenCV-MinGW-Build-OpenCV-3.3.1-master\bin\libopencv_*.dll
 
 }
 
