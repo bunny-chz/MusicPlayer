@@ -13,7 +13,7 @@
 #include "opencv.hpp"
 
 #define APPID   ""  //此处填入虹软人脸SDK的APPID，代码只做演示
-#define SDKKey  ""  //此处填入虹软人脸SDK的SDKKe，代码只做演示
+#define SDKKey  ""  //此处填入虹软人脸SDK的SDKKey，代码只做演示
 #define MERR_ASF_BASE_ALREADY_ACTIVATED (0x16002)
 
 FaceRecognition::FaceRecognition(QWidget *parent) :
